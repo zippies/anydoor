@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block subtitle %}
+	{{ keepername }}
+{% endblock %}
+
+{% block header %}
+	{{ super() }}
+{% endblock %}
+
+{% block body %}
+	<!-- ========================================================================================= -->
+	<div class="modal fade" id="newmodal">
+	  <div class="modal-dialog">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+	        <h4 class="modal-title">新增分类</h4>
+	      </div>
+	      <div class="modal-body">
+	      <form id="newKeeperForm" method="post" action="/keeper/add">
+		    <div class="input-group">
+		      <span class="input-group-btn">
+		        <button class="btn btn-default" type="button">名称：</button>
+		      </span>
+		      <input type="text" class="form-control" name="name">
+		    </div>
+		    <br>
+		    <div class="input-group">
+		      <span class="input-group-btn">
+		        <button class="btn btn-default" type="button">描述：</button>
+		      </span>
+		      <input type="text" class="form-control" name="desc">
+		    </div>
+		  </form>
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+	        <button type="button" class="btn btn-primary" onclick="document.forms['newKeeperForm'].submit()">保存</button>
+	      </div>
+	    </div><!-- /.modal-content -->
+	  </div><!-- /.modal-dialog -->
+	</div><!-- /.modal -->
+	<!-- ========================================================================================= -->
+	<div style="margin:20px">
+		<div class="page-header">
+			<h1>任意门 <small> I can go anywhere~</small></h1>
+		</div>
+		<div class="page-body">
+			<button class="btn btn-info" data-toggle="modal" data-target="#newmodal">新增</button>
+			<table id="keeper-table">
+			</table>
+		</div>
+	</div>
+{% endblock %}
+{% block script %}
+		$(function(){
+	        layer.config({
+	            extend: 'extend/layer.ext.js'
+	        });
+
+			$('#keeper-table').bootstrapTable({
+				cache:true,
+				pagination:true,
+				paginationLoop:false,
+				pageNumber:1,
+				pageSize:10,
+				searchAlign:"left",
+				paginationPreText:"上一页",
+				paginationNextText:"下一页",
+				search:true,
+				url:"/keeper/all",
+				columns:[{
+					sortable:true,
+					width:"10%",
+					field:"id",
+					title:"ID"
+				},{
+					sortable:true,
+					width:"20%",
+					field:"name",
+					title:"名称"
+				},{
+					sortable:true,
+					width:"50%",
+					field:"desc",
+					title:"描述"
+				},{
+					width:"20%",
+					field:"operation",
+					title:"操作"
+				}
+				]
+			});
+		})
+
+		function edit(id){
+			alert(id)
+		}
+
+		function del(id){
+			layer.confirm('确定要删除吗？', {
+				btn: ['取消','确定']
+			}, function(index){
+				layer.close(index);
+			}, function(){
+				$.ajax({
+					url:"/keeper/delete/"+id,
+					type:"delete",
+					success:function(data){
+						if(data.result){
+							layer.msg("删除成功！");
+						}else{
+							layer.msg("删除失败:"+data.errorMsg);
+						}
+					}
+				})
+			});
+		}
+{% endblock %}
