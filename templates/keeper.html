@@ -21,14 +21,14 @@
 	      <form id="newKeeperForm" method="post" action="/keeper/add">
 		    <div class="input-group">
 		      <span class="input-group-btn">
-		        <button class="btn btn-default" type="button">名称：</button>
+		        <button class="btn btn-default" type="button" disabled>名称：</button>
 		      </span>
 		      <input type="text" class="form-control" name="name">
 		    </div>
 		    <br>
 		    <div class="input-group">
 		      <span class="input-group-btn">
-		        <button class="btn btn-default" type="button">描述：</button>
+		        <button class="btn btn-default" type="button" disabled>描述：</button>
 		      </span>
 		      <input type="text" class="form-control" name="desc">
 		    </div>
@@ -44,7 +44,7 @@
 	<!-- ========================================================================================= -->
 	<div style="margin:20px">
 		<div class="page-header">
-			<h1>任意门 <small> I can go anywhere~</small></h1>
+			<h1>任意门 <small> I can go anywhere</small></h1>
 		</div>
 		<div class="page-body">
 			<button class="btn btn-info" data-toggle="modal" data-target="#newmodal">新增</button>
@@ -109,7 +109,7 @@
 					type:"delete",
 					success:function(data){
 						if(data.result){
-							layer.msg("删除成功！");
+                            location.reload();
 						}else{
 							layer.msg("删除失败:"+data.errorMsg);
 						}

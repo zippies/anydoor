@@ -21,14 +21,14 @@
 	      <form id="newDoorForm" method="post" action="/{{keeperid}}/add">
 		    <div class="input-group">
 		      <span class="input-group-btn">
-		        <button class="btn btn-default" type="button">描述：</button>
+		        <button class="btn btn-default" type="button" disabled>描述：</button>
 		      </span>
 		      <input type="text" class="form-control" name="desc">
 		    </div>
 		    <br>
 		    <div class="input-group">
 		      <span class="input-group-btn">
-		        <button class="btn btn-default" type="button">链接：</button>
+		        <button class="btn btn-default" type="button" disabled>链接：</button>
 		      </span>
 		      <input type="text" class="form-control" name="link">
 		    </div>
@@ -110,7 +110,7 @@
 					type:"delete",
 					success:function(data){
 						if(data.result){
-							layer.msg("删除成功！");
+                            location.reload();
 						}else{
 							layer.msg("删除失败:"+data.errorMsg);
 						}

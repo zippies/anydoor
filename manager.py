@@ -87,7 +87,7 @@ def addKeeper():
 @app.route("/keeper/all")
 def allKeeper():
 	keepers = Keeper.query.filter_by(status=0).all()
-	data = [{"id":i+1,"name":"<a href='/%s/'>%s</a>" %(c.id,c.name),"desc":c.desc,"operation":"<a href='#' onclick=edit(%s)>编辑</a> <a href='#' onclick=del(%s)>删除</a>" %(c.id,c.id)} for i,c in enumerate(keepers)]
+	data = [{"id":i+1,"name":"<a href='/%s/'>%s</a>" %(c.id,c.name),"desc":c.desc,"operation":"<a href='#' onclick=del(%s)>删除</a>" %c.id} for i,c in enumerate(keepers)]
 	return jsonify(data)
 
 
@@ -100,6 +100,8 @@ def delKeeper(id):
 			keeper.status = -1
 			db.session.add(keeper)
 			db.session.commit()
+			message = {"type":"success","message":"'%s'删除成功!" %keeper.name}
+			flash(message)
 	except Exception as e:
 		info["result"] = False 
 		info["errorMsg"] = "[error]:%s|%s" %(str(e),traceback.format_exc())
@@ -141,7 +143,7 @@ def addDoor(keeperid):
 @app.route("/<keeperid>/all")
 def allDoor(keeperid):
 	doors = Door.query.filter_by(keeperid=keeperid).filter_by(status=0).all()
-	data = [{"id":i+1,"desc":"%s" %d.desc,"link":"<a href='%s' target='_blank'>%s</a>" %(d.link,d.link),"operation":"<a href='#' onclick=edit(%s)>编辑</a> <a href='#' onclick=del(%s)>删除</a>" %(d.id,d.id)} for i,d in enumerate(doors)]
+	data = [{"id":i+1,"desc":"%s" %d.desc,"link":"<a href='%s' target='_blank'>%s</a>" %(d.link,d.link),"operation":"<a href='#' onclick=del(%s)>删除</a>" %d.id} for i,d in enumerate(doors)]
 	return jsonify(data)
 
 
@@ -154,6 +156,8 @@ def delDoor(id):
 			door.status = -1
 			db.session.add(door)
 			db.session.commit()
+			message = {"type":"success","message":"'%s'删除成功!" %door.desc}
+			flash(message)
 	except Exception as e:
 		info["result"] = False 
 		info["errorMsg"] = "[error]%s|%s" %(str(e),traceback.format_exc())
