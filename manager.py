@@ -37,13 +37,15 @@ class Door(db.Model):
     id = db.Column(db.Integer,primary_key=True)
     desc = db.Column(db.String(32))
     link = db.Column(db.String(256))
+    other = db.Column(db.String(1280))
     keeperid = db.Column(db.Integer)
     status = db.Column(db.Integer,default=0)
     createdtime = db.Column(db.DateTime,default=datetime.now)
 
-    def __init__(self,desc,link,keeperid):
+    def __init__(self,desc,link,other,keeperid):
         self.desc = desc
         self.link = link
+        self.other = other
         self.keeperid = keeperid
 
     def __repr__(self):
@@ -123,11 +125,12 @@ def addDoor(keeperid):
 	message = None
 	desc = request.form.get("desc")
 	link = request.form.get("link")
+	other = request.form.get("other")
 	try:
 		keeper = Keeper.query.filter_by(id=keeperid).first()
 		if keeper:
-			d = Door.query.filter_by(desc=desc).all()
-			door = Door(desc="%s_%s" %(desc,len(d)) if d else desc,link=link,keeperid=keeperid)
+			d = Door.query.filter_by(desc=desc).filer_by(status=0).all()
+			door = Door(desc="%s_%s" %(desc,len(d)) if d else desc,link=link,other=other,keeperid=keeperid)
 			db.session.add(door)
 			db.session.commit()
 			message = {"type":"success","message":"新增成功！"}
@@ -143,7 +146,13 @@ def addDoor(keeperid):
 @app.route("/<keeperid>/all")
 def allDoor(keeperid):
 	doors = Door.query.filter_by(keeperid=keeperid).filter_by(status=0).all()
-	data = [{"id":i+1,"desc":"%s" %d.desc,"link":"<a href='%s' target='_blank'>%s</a>" %(d.link,d.link),"operation":"<a href='#' onclick=del(%s)>删除</a>" %d.id} for i,d in enumerate(doors)]
+	data = [
+		{"id":i+1,"desc":"%s" %d.desc,
+		"link":"<a href='%s' target='_blank'>%s</a>" %(d.link,d.link),
+		"other":"<a id='show-hide-{id}' onclick='toggleThis({id})' href='javascript:;'>显示</a><textarea id='other-{id}' class='form-control' style='display:none;max-width:400px;min-height:150px;max-height:250px;'>{other}</textarea><a id='save-{id}' href='javascript:;' onclick='saveEdit({id})' style='display:none'>修改</a>".format(id=d.id,other=d.other),
+		"operation":"<a href='#' onclick=del(%s)>删除</a>" %d.id
+		} for i,d in enumerate(doors)
+	]
 	return jsonify(data)
 
 
@@ -160,6 +169,25 @@ def delDoor(id):
 			flash(message)
 	except Exception as e:
 		info["result"] = False 
+		info["errorMsg"] = "[error]%s|%s" %(str(e),traceback.format_exc())
+	finally:
+		return jsonify(info)
+
+@app.route("/door/modify/<id>",methods=["post"])
+def modifyDoor(id):
+	info = {"result":True,"errorMsg":None}
+	other = request.form.get("other")
+	try:
+		door = Door.query.filter_by(id=id).first()
+		if door:
+			door.other = other
+			db.session.add(door)
+			db.session.commit()
+		else:
+			info["result"] = False
+			info["errorMsg"] = "指定修改的对象不存在或已被删除"
+	except Exception as e:
+		info["result"] = False
 		info["errorMsg"] = "[error]%s|%s" %(str(e),traceback.format_exc())
 	finally:
 		return jsonify(info)
